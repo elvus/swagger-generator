@@ -168,7 +168,6 @@ const Editable: React.FC<data> = ({data}) => {
   };
 
   const handleAddNewRow = (row: DataType) => {
-    console.log(row);
     if (row.key === dataSource[dataSource.length - 1].key) {
       setDataSource([...dataSource, {
         key: (dataSource.length + 1).toString(),
