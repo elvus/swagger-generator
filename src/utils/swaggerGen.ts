@@ -27,7 +27,6 @@ class JSONToSwaggerConverter {
 
     convert() {
         let swaggerSchema = '';
-        const url = `${this.urlAttributes.protocol}//${this.urlAttributes.host}${this.urlAttributes.basePath}`;
         if (this.yaml) {
             if(this.swagger === '3.0') {
                 swaggerSchema += 'openapi: "3.0.0"\n';
@@ -45,10 +44,10 @@ class JSONToSwaggerConverter {
                 swaggerSchema += '  title: "API"\n';
                 swaggerSchema += '  description: "API"\n';
                 swaggerSchema += '  version: "1.0.0"\n';
-                swaggerSchema += `host: "${this.urlAttributes.protocol}//${this.urlAttributes.host}"\n`;
+                swaggerSchema += `host: "${this.urlAttributes.host}"\n`;
                 swaggerSchema += `basePath: "${this.urlAttributes.basePath}"\n`;
                 swaggerSchema += 'schemes:\n';
-                swaggerSchema += '  - "http"\n';
+                swaggerSchema += `  - "${this.urlAttributes.protocol.replace(":","")}"\n`;
                 swaggerSchema += 'consumes:\n';
                 swaggerSchema += '  - "application/json"\n';
                 swaggerSchema += 'produces:\n';

@@ -434,10 +434,12 @@ const App: React.FC = () => {
 		}
 
 		if (json_curl.hasOwnProperty('data')) {
-			setMethod('post');
-			form.setFieldsValue({
-				method: 'post'
-			});
+			if(method === 'get'){
+				setMethod('post');
+				form.setFieldsValue({
+					method: 'post'
+				});
+			}
 			setBody(Object.keys(json_curl['data']).map((key) => {
 				return {
 					key: key,

@@ -36,6 +36,7 @@ interface EditableCellProps {
   dataIndex: keyof Item;
   record: Item;
   handleSave: (record: Item) => void;
+  handleAddNewRow: (record: Item) => void;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -45,6 +46,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   dataIndex,
   record,
   handleSave,
+  handleAddNewRow,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
@@ -73,6 +75,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }
   };
 
+  const addNewRow = () => {
+    handleAddNewRow(record);
+  }
+
   let childNode = children;
   if (editable) {
     childNode = editing ? (
@@ -80,7 +86,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           style={{ margin: 0}}
           name={dataIndex}
         >
-          <Input ref={inputRef} placeholder={title as string} onPressEnter={save} onBlur={save} />
+          <Input ref={inputRef} placeholder={title as string} onPressEnter={save} onBlur={save} onInput={addNewRow} />
         </Form.Item>
     ) : (
       <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -161,6 +167,18 @@ const Editable: React.FC<data> = ({data}) => {
     setDataSource(newData);
   };
 
+  const handleAddNewRow = (row: DataType) => {
+    console.log(row);
+    if (row.key === dataSource[dataSource.length - 1].key) {
+      setDataSource([...dataSource, {
+        key: (dataSource.length + 1).toString(),
+        key_param: '',
+        value_param: '',
+        description_param: ''
+      }]);
+    }
+  }
+
   const components = {
     body: {
       row: EditableRow,
@@ -180,6 +198,7 @@ const Editable: React.FC<data> = ({data}) => {
         dataIndex: col.dataIndex,
         title: col.title,
         handleSave,
+        handleAddNewRow,
       }),
     };
   });
