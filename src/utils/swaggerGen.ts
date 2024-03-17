@@ -44,10 +44,10 @@ class JSONToSwaggerConverter {
                 swaggerSchema += '  title: "API"\n';
                 swaggerSchema += '  description: "API"\n';
                 swaggerSchema += '  version: "1.0.0"\n';
-                swaggerSchema += `host: "${this.urlAttributes.host}"\n`;
-                swaggerSchema += `basePath: "${this.urlAttributes.basePath}"\n`;
+                swaggerSchema += `host: "${this.urlAttributes.host || ""}"\n`;
+                swaggerSchema += `basePath: "${this.urlAttributes.basePath || ""}"\n`;
                 swaggerSchema += 'schemes:\n';
-                swaggerSchema += `  - "${this.urlAttributes.protocol.replace(":","")}"\n`;
+                swaggerSchema += `  - "${this.urlAttributes.protocol ? this.urlAttributes.protocol.replace(":", "") : ""}"\n`;
                 swaggerSchema += 'consumes:\n';
                 swaggerSchema += '  - "application/json"\n';
                 swaggerSchema += 'produces:\n';

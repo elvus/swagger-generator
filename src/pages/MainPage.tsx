@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Form, Input, Layout, Menu, Radio, Select, Space, Tabs } from 'antd';
+import { Button, Card, Col, Form, Input, Layout, Menu, Radio, Row, Select, Space, Tabs } from 'antd';
 import type { RadioChangeEvent, TabsProps } from 'antd';
 import { Link } from 'react-router-dom';
 import Editable from '../components/Editable';
@@ -8,6 +8,49 @@ import Preview from '../components/Preview';
 const { Option } = Select;
 const { Header, Content } = Layout;
 
+const BodyType: React.FC<any> = (props) => {
+	const [value, setValue] = React.useState(0);
+
+	const onChange = (e: RadioChangeEvent) => {
+		setValue(e.target.value);
+	}
+
+	const BodyForm = () =>{
+		switch (value) {
+			case 1:
+				return (
+					<Editable data={props.data} />
+				);
+			case 2:
+				return (
+					<Form.Item>
+						<Input.TextArea rows={10} />
+					</Form.Item>
+				);
+			default:
+				return null;
+		}
+	}
+
+	return (
+		<>
+			<Row>
+				<Col span={24}>
+					<Radio.Group onChange={onChange} value={value}>
+						<Radio value={0}>none</Radio>
+						<Radio value={1}>form-data</Radio>
+						<Radio value={2}>JSON</Radio>
+					</Radio.Group>
+				</Col>
+			</Row>
+			<Row style={{marginTop: 10}}>
+				<Col span={24}>
+					<BodyForm/>
+				</Col>
+			</Row>		
+		</>
+	);
+}
 
 const App: React.FC = () => {
 	const [form] = Form.useForm();
@@ -345,7 +388,8 @@ const App: React.FC = () => {
 		{
 			key: '3',
 			label: 'Body',
-			children: <Editable data={body} />,
+			// children: <Editable data={body} />,
+			children: <BodyType data={body} />,
 		},
 	];
 
@@ -542,5 +586,6 @@ const App: React.FC = () => {
 		</Layout>
 	);
 };
+
 
 export default App;
