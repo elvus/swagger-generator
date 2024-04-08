@@ -79,7 +79,7 @@ class JSONToSwaggerConverter {
                 swaggerSchema += `  description: "API"\n`;
                 swaggerSchema += `  version: "1.0.0"\n`;
                 swaggerSchema += `host: "${this.url.host || ""}"\n`;
-                swaggerSchema += `basePath: ""\n`;
+                swaggerSchema += `basePath: "/"\n`;
                 swaggerSchema += `schemes:\n`;
                 swaggerSchema += `  - "${this.url.protocol.replace(":", "") || ""}"\n`;
                 swaggerSchema += `consumes:\n`;

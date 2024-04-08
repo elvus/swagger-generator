@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, Col, Form, Input, Layout, Menu, Radio, Row, Select, Space, Tabs } from 'antd';
 import type { RadioChangeEvent, TabsProps } from 'antd';
-import { Link, json } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import * as curlconverter from 'curlconverter';
 import Editable from '../components/Editable';
 import Preview from '../components/Preview';
@@ -11,12 +11,6 @@ const { Header, Content } = Layout;
 
 const App: React.FC = () => {
 	const [form] = Form.useForm();
-	const [curl, setCurl] = React.useState<any>({});
-	const [method, setMethod] = React.useState('get');
-	const [urlAttr, setUrlAttr] = React.useState({});
-	const [body, setBody] = React.useState<any>([]);
-	const [headers, setHeaders] = React.useState<any>([]);
-	const [params, setParams] = React.useState<any>([]);
 	const [swaggerType, setSwaggerType] = React.useState('3.0');
 	const [bodyType, setBodyType] = React.useState(0);
 	const [jsonData, setJsonData] = React.useState<any>();
@@ -67,18 +61,18 @@ const App: React.FC = () => {
 		{
 			key: '1',
 			label: 'Params',
-			children: <Editable data={params} />,
+			children: <Editable  />,
 		},
 		{
 			key: '2',
 			label: 'Headers',
-			children: <Editable data={headers} />,
+			children: <Editable />,
 		},
 		{
 			key: '3',
 			label: 'Body',
 			// children: <Editable data={body} />,
-			children: <BodyType data={body} />,
+			children: <BodyType />,
 		},
 	];
 

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { GetRef } from 'antd';
-import { Form, Input, Row, Table } from 'antd';
+import { Form, Input, Table } from 'antd';
 
 type InputRef = GetRef<typeof Input>;
 type FormInstance<T> = GetRef<typeof Form<T>>;
@@ -149,7 +149,8 @@ const Editable: React.FC<data> = ({data}) => {
     {
       title: 'operation',
       dataIndex: 'operation',
-      render: (_, record: { key: React.Key }) =>
+      key: 'operation',
+      render: (_) =>
         dataSource.length >= 1 ? (
             <a>Delete</a>
         ) : null,
