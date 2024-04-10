@@ -100,20 +100,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
 type EditableTableProps = Parameters<typeof Table>[0];
 
-interface DataType {
-  key: React.Key;
-  key_param: string;
-  value_param: string;
-  description_param: string;
-}
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 
-interface data{
-    data?: DataType[]
-}
-
-const Editable: React.FC<data> = ({data}) => {
+const Editable: React.FC<any> = ({data}) => {
 	const defaultData = [
 		{
 			key: '1',
@@ -122,9 +112,18 @@ const Editable: React.FC<data> = ({data}) => {
 			description_param: '',
 		},
 	];
-  const [dataSource, setDataSource] = useState<DataType[]>([]);
+  const [dataSource, setDataSource] = useState<Item[]>([]);
 	useEffect(() => {
-		setDataSource(data ? [...data, ...defaultData] : defaultData);
+    let newData: Item[] = [];
+    for(let key in data) {  
+      newData.push({
+        key: key,
+        key_param: key,
+        value_param: data[key],
+        description_param: ''
+      })
+    }
+		setDataSource(newData ? [...newData, ...defaultData] : defaultData);
 	}, [data]);
     
   const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
@@ -157,7 +156,7 @@ const Editable: React.FC<data> = ({data}) => {
     },
   ];
 
-  const handleSave = (row: DataType) => {
+  const handleSave = (row: Item) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
@@ -168,7 +167,7 @@ const Editable: React.FC<data> = ({data}) => {
     setDataSource(newData);
   };
 
-  const handleAddNewRow = (row: DataType) => {
+  const handleAddNewRow = (row: Item) => {
     if (row.key === dataSource[dataSource.length - 1].key) {
       setDataSource([...dataSource, {
         key: (dataSource.length + 1).toString(),
@@ -192,7 +191,7 @@ const Editable: React.FC<data> = ({data}) => {
     }
     return {
       ...col,
-      onCell: (record: DataType) => ({
+      onCell: (record: Item) => ({
         record,
         editable: col.editable,
         dataIndex: col.dataIndex,

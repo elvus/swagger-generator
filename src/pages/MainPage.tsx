@@ -61,18 +61,18 @@ const App: React.FC = () => {
 		{
 			key: '1',
 			label: 'Params',
-			children: <Editable  />,
+			children: <Editable data={jsonData?.queries} />,
 		},
 		{
 			key: '2',
 			label: 'Headers',
-			children: <Editable />,
+			children: <Editable data={jsonData?.headers}/>,
 		},
 		{
 			key: '3',
 			label: 'Body',
 			// children: <Editable data={body} />,
-			children: <BodyType />,
+			children: <BodyType data={jsonData?.data} />,
 		},
 	];
 
@@ -86,7 +86,7 @@ const App: React.FC = () => {
 		try{
 			const data = JSON.parse(curlconverter.toJsonString(e.target.value));
 			setJsonData(data);
-			setBodyType(2);
+			setBodyType(0);
 			form.setFieldValue('method', data.method);
 			form.setFieldValue('curl', data.raw_url);
 			form.setFieldValue('body', JSON.stringify(data.data, null, 4));

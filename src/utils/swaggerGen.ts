@@ -34,10 +34,10 @@ class JSONToSwaggerConverter {
             schema += `${" ".repeat(spaces)}type: ${this.#getObjectType(obj[0])}\n`;
             schema += `${" ".repeat(spaces)}properties:\n`;
             if(this.#getObjectType(obj[0]) === `object`){
-                schema += this.#getSchenmaProperties(obj[0], spaces+2);
+                obj = obj[0];
+                spaces += 2;
             }
-            return schema;
-        }else{
+        }else if(this.#getObjectType(obj) === `object`){
             schema += `${" ".repeat(spaces - 2)}properties:\n`;
         }
 
@@ -48,11 +48,9 @@ class JSONToSwaggerConverter {
                 schema += `${" ".repeat(spaces+2)}items:\n`;
                 schema += `${" ".repeat(spaces+4)}type: ${this.#getObjectType(obj[key][0])}\n`;
                 if(this.#getObjectType(obj[key][0]) === `object`){
-                    schema += `${" ".repeat(spaces+4)}properties:\n`;
                     schema += this.#getSchenmaProperties(obj[key][0], spaces+6);
                 }
             }else if(this.#getObjectType(obj[key]) === `object`){
-                schema += `${" ".repeat(spaces+2)}properties:\n`;
                 schema += this.#getSchenmaProperties(obj[key], spaces+4);
             }
         }
@@ -124,7 +122,7 @@ class JSONToSwaggerConverter {
                     swaggerSchema += `          application/json:\n`;
                     swaggerSchema += `            schema:\n`;
                     swaggerSchema += `              type: "${this.#getObjectType(this.json?.data)}"\n`;
-                    swaggerSchema += this.#getSchenmaProperties(this.json?.data, 18);
+                    swaggerSchema += this.#getSchenmaProperties(this.json?.data, 16);
                 } else {
                     swaggerSchema += `        - name: "body"\n`;
                     swaggerSchema += `          in: "body"\n`;
