@@ -80,16 +80,26 @@ const App: React.FC = () => {
 		console.log(key);
 	};
 
-	
-
 	const handleCurl = (e: React.ChangeEvent<HTMLInputElement>) => {
 		try{
-			const data = JSON.parse(curlconverter.toJsonString(e.target.value));
-			setJsonData(data);
-			setBodyType(0);
-			form.setFieldValue('method', data.method);
-			form.setFieldValue('curl', data.raw_url);
-			form.setFieldValue('body', JSON.stringify(data.data, null, 4));
+			const { value } = e.target;
+			if(value.startsWith('curl')){
+				const data = JSON.parse(curlconverter.toJsonString(value));
+				setJsonData(data);
+				setBodyType(0);
+				form.setFieldValue('method', data.method);
+				form.setFieldValue('curl', data.raw_url);
+				form.setFieldValue('body', JSON.stringify(data.data, null, 4));
+			}else{
+				setJsonData({
+					url: value,
+					method: form.getFieldValue('method') || 'get',
+					headers: {},
+					queries: {},
+					data: "",
+					response: {},
+				});
+			}
 		}catch(err){
 			console.log(err);
 		}
@@ -100,12 +110,17 @@ const App: React.FC = () => {
 	}
 	//get response
 	const onGenerateHandler = async () => {
-		console.log("submitting...");
-		const response = await fetch(jsonData.url, {
+		console.log("submitting...", jsonData);
+		const body:any = {
 			method: jsonData.method,
 			headers: jsonData.headers,
-			body: JSON.stringify(jsonData.data),
-		});
+		}
+		
+		if(jsonData.method !== 'get'){
+			body['body'] = jsonData.data;
+		}
+
+		const response = await fetch(jsonData.url, body);
 		const data = await response.json();
 		setJsonData({...jsonData, response: data});
 	}

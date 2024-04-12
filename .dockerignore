@@ -18,6 +18,7 @@ package-lock.json
 dist/
 dist-ssr/
 *.local
+Dockerfile
 
 # Editors
 .vscode/
