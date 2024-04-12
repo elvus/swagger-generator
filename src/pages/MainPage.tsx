@@ -93,7 +93,7 @@ const App: React.FC = () => {
 			}else{
 				setJsonData({
 					url: value,
-					method: form.getFieldValue('method') || 'get',
+					method: form.getFieldValue('method'),
 					headers: {},
 					queries: {},
 					data: "",
@@ -110,7 +110,6 @@ const App: React.FC = () => {
 	}
 	//get response
 	const onGenerateHandler = async () => {
-		console.log("submitting...", jsonData);
 		const body:any = {
 			method: jsonData.method,
 			headers: jsonData.headers,
