@@ -112,7 +112,9 @@ const Editable: React.FC<any> = ({data}) => {
 			description_param: '',
 		},
 	];
+  
   const [dataSource, setDataSource] = useState<Item[]>([]);
+
 	useEffect(() => {
     let newData: Item[] = [];
     for(let key in data) {  

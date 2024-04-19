@@ -14,8 +14,8 @@ const App: React.FC = () => {
 	const [swaggerType, setSwaggerType] = React.useState('3.0');
 	const [bodyType, setBodyType] = React.useState(0);
 	const [jsonData, setJsonData] = React.useState<any>();
-	const BodyType: React.FC<any> = ({body}) => {
 
+	const BodyType: React.FC<any> = ({data}) => {
 		const onChange = ({target: { value } }: RadioChangeEvent) => {
 			setBodyType(parseInt(value));
 		}
@@ -24,12 +24,12 @@ const App: React.FC = () => {
 			switch (bodyType) {
 				case 1:
 					return (
-						<Editable data={body} />
+						<Editable data={data} />
 					);
 				case 2:
 					return (
-						<Form.Item name="body">
-							<Input.TextArea rows={10} value={JSON.stringify(jsonData, null, 4)}/>
+						<Form.Item>
+							<Input.TextArea rows={10} value={JSON.stringify(data, null, 4)}/>
 						</Form.Item>
 					);
 				default:
@@ -89,7 +89,6 @@ const App: React.FC = () => {
 				setBodyType(0);
 				form.setFieldValue('method', data.method);
 				form.setFieldValue('curl', data.raw_url);
-				form.setFieldValue('body', JSON.stringify(data.data, null, 4));
 			}else{
 				setJsonData({
 					url: value,

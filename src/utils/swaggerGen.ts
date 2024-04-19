@@ -25,31 +25,86 @@ class JSONToSwaggerConverter {
             return `boolean`;
         }
     }
+
+    #extractJsonSchema(array: any[]) {
+        const schema:any = [];
+        if(array.length > 0){
+            array.forEach((element: any) => {
+                if(this.#getObjectType(element) === `object`){
+                    let obj:any = {};
+                    for(let key in element){
+                        obj[key] = this.#getObjectType(element[key]);
+                    }
+                    if(schema.length === 0){
+                        schema.push(obj);
+                    }else{
+                        const exist = schema.find((item: any) => {
+                            if(JSON.stringify(item) === JSON.stringify(obj)){
+                                return true;
+                            }
+                        });
+                        if(exist === undefined){
+                            schema.push(obj);
+                        }
+                    }
+                }else{
+                    const exist = schema.find((item: any) => {
+                        if(this.#getObjectType(item) === this.#getObjectType(element)){
+                            return true;
+                        }
+                    });
+
+                    if(exist === undefined){
+                        schema.push(element);
+                    }
+                }
+            });
+        }
+        return schema;
+    }
     
     #getSchenmaProperties(obj: any, spaces: number) {
         let schema = ``;
-        
         if(Array.isArray(obj)){
+            let schemaArray = [];
             schema += `${" ".repeat(spaces - 2)}items:\n`;
-            schema += `${" ".repeat(spaces)}type: ${this.#getObjectType(obj[0])}\n`;
-            schema += `${" ".repeat(spaces)}properties:\n`;
-            if(this.#getObjectType(obj[0]) === `object`){
-                obj = obj[0];
-                spaces += 2;
+
+            if(this.swagger === `2.0`){
+                schemaArray = this.#extractJsonSchema(obj).slice(0, 1);
+            }else{
+                schema += `${" ".repeat(spaces)}oneOf:\n`;
+                schemaArray = this.#extractJsonSchema(obj);
             }
+            
+            if(schemaArray.length > 0){
+                schemaArray.forEach((element: any) => {
+                    if(this.swagger === `3.0`){
+                        schema += `${" ".repeat(spaces + 2)}- type: ${this.#getObjectType(element)}\n`;
+                        if(this.#getObjectType(element) === `object`){
+                            schema += this.#getSchenmaProperties(element, spaces+6);
+                        }
+                    }else{
+                        schema += `${" ".repeat(spaces)}type: ${this.#getObjectType(element)}\n`;
+                        if(this.#getObjectType(element) === `object`){
+                            schema += this.#getSchenmaProperties(element, spaces+2);
+                        }
+                    }
+                });
+            }
+            return schema;
         }else if(this.#getObjectType(obj) === `object`){
             schema += `${" ".repeat(spaces - 2)}properties:\n`;
+        }else{
+            schema += `${" ".repeat(spaces - 2)}items:\n`;
+            schema += `${" ".repeat(spaces)}type: ${this.#getObjectType(obj)}\n`;
+            return schema;
         }
 
         for (let key in obj) {
             schema += `${" ".repeat(spaces)}${key}:\n`;
             schema += `${" ".repeat(spaces+2)}type: ${this.#getObjectType(obj[key])}\n`;
             if(this.#getObjectType(obj[key]) === `array`){
-                schema += `${" ".repeat(spaces+2)}items:\n`;
-                schema += `${" ".repeat(spaces+4)}type: ${this.#getObjectType(obj[key][0])}\n`;
-                if(this.#getObjectType(obj[key][0]) === `object`){
-                    schema += this.#getSchenmaProperties(obj[key][0], spaces+6);
-                }
+                schema += this.#getSchenmaProperties(obj[key], spaces+4);
             }else if(this.#getObjectType(obj[key]) === `object`){
                 schema += this.#getSchenmaProperties(obj[key], spaces+4);
             }
