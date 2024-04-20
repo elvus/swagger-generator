@@ -21,17 +21,28 @@ const App: React.FC = () => {
 		}
 
 		const BodyForm = () =>{
+			const formHeaders = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 			switch (bodyType) {
 				case 1:
-					return (
-						<Editable data={data} />
-					);
+					if(formHeaders.includes(data.headers['Content-Type'])){
+						return <Editable data={data?.data} />
+					}else{
+						return <Editable/>
+					}
 				case 2:
-					return (
-						<Form.Item>
-							<Input.TextArea rows={10} value={JSON.stringify(data, null, 4)}/>
-						</Form.Item>
-					);
+					if(data.headers['Content-Type'] === 'application/json'){
+						return (
+							<Form.Item>
+								<Input.TextArea rows={10} value={JSON.stringify(data.data, null, 4)}/>
+							</Form.Item>
+						);
+					}else{
+						return (
+							<Form.Item>
+								<Input.TextArea rows={10}/>
+							</Form.Item>
+						);
+					}
 				default:
 					return null;
 			}
@@ -72,7 +83,7 @@ const App: React.FC = () => {
 			key: '3',
 			label: 'Body',
 			// children: <Editable data={body} />,
-			children: <BodyType data={jsonData?.data} />,
+			children: <BodyType data={jsonData} />,
 		},
 	];
 

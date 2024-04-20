@@ -29,11 +29,17 @@ class JSONToSwaggerConverter {
     #extractJsonSchema(array: any[]) {
         const schema:any = [];
         if(array.length > 0){
-            array.forEach((element: any) => {
+            array.forEach((element: any) => {                
                 if(this.#getObjectType(element) === `object`){
                     let obj:any = {};
                     for(let key in element){
-                        obj[key] = this.#getObjectType(element[key]);
+                        if(this.#getObjectType(element[key]) === `object`){
+                            obj[key] = this.#extractJsonSchema([element[key]])[0];
+                        }else if(this.#getObjectType(element[key]) === `array`){
+                            obj[key] = this.#extractJsonSchema(element[key]);
+                        }else{
+                            obj[key] = this.#getObjectType(element[key]);   
+                        }
                     }
                     if(schema.length === 0){
                         schema.push(obj);
@@ -47,7 +53,7 @@ class JSONToSwaggerConverter {
                             schema.push(obj);
                         }
                     }
-                }else{
+                }else{                    
                     const exist = schema.find((item: any) => {
                         if(this.#getObjectType(item) === this.#getObjectType(element)){
                             return true;
