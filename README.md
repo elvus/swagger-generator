@@ -1,5 +1,3 @@
-Here's a refined version of your README:
-
 # Swagger Generator
 
 The Swagger Generator is a tool designed to streamline the conversion of cURL commands into Swagger 2 or OpenAPI formats. It offers an intuitive interface for simplifying the process of documenting API endpoints.
@@ -31,6 +29,24 @@ Follow these steps to set up and use the Swagger Generator:
     npm run dev
     ```
     Start the application by running this command. It will launch the Swagger Generator interface, allowing you to convert cURL commands effortlessly into Swagger or OpenAPI formats.
-5. **Go to**: http://localhost:5173/
+
+5. **Access the Interface**: 
+    After running the application, open your web browser and go to [http://localhost:5173/](http://localhost:5173/) to access the Swagger Generator interface.
+
+## Docker
+
+Alternatively, you can use Docker to deploy the Swagger Generator:
+
+1. **Build the Docker Image**:
+    ```sh
+    docker build -t swagger_gen .
+    ```
+    This command builds the Docker image named `swagger_gen`.
+
+2. **Run the Docker Container**:
+    ```sh
+    docker run --name=swagger_gen -p 5173:5173 swagger_gen
+    ```
+    Execute the Docker container with the specified name (`swagger_gen`) and port mapping. This will deploy the Swagger Generator within a Docker container.
 
 Feel free to explore and utilize the Swagger Generator to enhance your API documentation process.
