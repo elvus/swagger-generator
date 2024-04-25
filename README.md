@@ -49,4 +49,5 @@ Alternatively, you can use Docker to deploy the Swagger Generator:
     ```
     Execute the Docker container with the specified name (`swagger_gen`) and port mapping. This will deploy the Swagger Generator within a Docker container.
 
+# How to use
 Feel free to explore and utilize the Swagger Generator to enhance your API documentation process.
