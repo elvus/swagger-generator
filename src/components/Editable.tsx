@@ -9,6 +9,7 @@ const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 interface Item {
   key: string;
+  selected: boolean;
   key_param: string;
   value_param: string;
   description_param: string;
@@ -67,7 +68,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const save = async () => {
     try {
       const values = await form.validateFields();
-
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
@@ -103,27 +103,27 @@ type EditableTableProps = Parameters<typeof Table>[0];
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 
-const Editable: React.FC<any> = ({data}) => {
+const Editable: React.FC<any> = ({data, rowSelection, dataSource, setDataSource}) => {
 	const defaultData = [
 		{
-			key: '1',
+			key: (dataSource.length + 1).toString(),
+      selected: false,
 			key_param: '',
 			value_param: '',
 			description_param: '',
 		},
 	];
   
-  const [dataSource, setDataSource] = useState<Item[]>([]);
-
 	useEffect(() => {
     let newData: Item[] = [];
-    for(let key in data) {  
+    for(let key in data) {
       newData.push({
         key: key,
+        selected: true,
         key_param: key,
         value_param: data[key],
         description_param: ''
-      })
+      });
     }
 		setDataSource(newData ? [...newData, ...defaultData] : defaultData);
 	}, [data]);
@@ -162,6 +162,9 @@ const Editable: React.FC<any> = ({data}) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
+    // set selected property to true
+    row.selected = true;
+    // If the key is the same, update the value
     newData.splice(index, 1, {
       ...item,
       ...row,
@@ -173,6 +176,7 @@ const Editable: React.FC<any> = ({data}) => {
     if (row.key === dataSource[dataSource.length - 1].key) {
       setDataSource([...dataSource, {
         key: (dataSource.length + 1).toString(),
+        selected: false,
         key_param: '',
         value_param: '',
         description_param: ''
@@ -207,6 +211,10 @@ const Editable: React.FC<any> = ({data}) => {
   return (
     <div>
       <Table
+        rowSelection={{
+          type: 'checkbox',
+          ...rowSelection
+        }}
         components={components}
         rowClassName={() => 'editable-row'}
         bordered

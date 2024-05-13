@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Input, Layout, Menu, Radio, Row, Select, Space, Tabs } from 'antd';
 import type { RadioChangeEvent, TabsProps } from 'antd';
 import { Link } from 'react-router-dom';
@@ -11,35 +11,37 @@ const { Header, Content } = Layout;
 
 const App: React.FC = () => {
 	const [form] = Form.useForm();
-	const [swaggerType, setSwaggerType] = React.useState('3.0');
-	const [bodyType, setBodyType] = React.useState(0);
-	const [jsonData, setJsonData] = React.useState<any>();
+	const [swaggerType, setSwaggerType] = useState('3.0');
+	const [bodyType, setBodyType] = useState(0);
+	const [jsonData, setJsonData] = useState<any>();
+	const [dataSource, setDataSource] = useState<any[]>([]);
+	const [selectedRows, setSelectedRows] = useState<React.Key[]>([]);
 
-	const BodyType: React.FC<any> = ({data}) => {
-		const onChange = ({target: { value } }: RadioChangeEvent) => {
+	const BodyType: React.FC<any> = ({ data }) => {
+		const onChange = ({ target: { value } }: RadioChangeEvent) => {
 			setBodyType(parseInt(value));
 		}
 
-		const BodyForm = () =>{
+		const BodyForm = () => {
 			const formHeaders = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 			switch (bodyType) {
 				case 1:
-					if(formHeaders.includes(data.headers['Content-Type'])){
+					if (formHeaders.includes(data.headers['Content-Type'])) {
 						return <Editable data={data?.data} />
-					}else{
-						return <Editable/>
+					} else {
+						return <Editable />
 					}
 				case 2:
-					if(data.headers['Content-Type'] === 'application/json'){
+					if (data.headers['Content-Type'] === 'application/json') {
 						return (
 							<Form.Item>
-								<Input.TextArea rows={10} value={JSON.stringify(data.data, null, 4)}/>
+								<Input.TextArea rows={10} value={JSON.stringify(data.data, null, 4)} />
 							</Form.Item>
 						);
-					}else{
+					} else {
 						return (
 							<Form.Item>
-								<Input.TextArea rows={10}/>
+								<Input.TextArea rows={10} />
 							</Form.Item>
 						);
 					}
@@ -47,7 +49,7 @@ const App: React.FC = () => {
 					return null;
 			}
 		}
-	
+
 		return (
 			<>
 				<Row>
@@ -59,25 +61,53 @@ const App: React.FC = () => {
 						</Radio.Group>
 					</Col>
 				</Row>
-				<Row style={{marginTop: 10}}>
+				<Row style={{ marginTop: 10 }}>
 					<Col span={24}>
-						<BodyForm/>
+						<BodyForm />
 					</Col>
-				</Row>		
+				</Row>
 			</>
 		);
 	}
+
+	useEffect(() => {
+		setSelectedRows(dataSource.filter((item) => item.selected).map((item) => item.key));
+	},[dataSource]);
+	
+	const rowSelection = {
+		onSelect: (record: any) => {
+			dataSource.find((item) => item.key === record.key).selected = !record.selected;
+			setDataSource([...dataSource]);
+		},
+		onSelectAll:(selected: boolean, _selectedRows: any[], changeRows: any[]) => {
+			console.log(changeRows)
+			changeRows.forEach((item) => {
+				dataSource.find((data) => data.key === item.key).selected = selected;
+			});
+			setDataSource([...dataSource]);
+		},
+		selectedRowKeys: selectedRows,
+		getCheckboxProps: (record: any) => {
+			if (record.key_param === '') {
+				return {
+					disabled: record.key_param === '', // Column configuration not to be checked
+					name: record.key_param,
+				}
+			}
+		}
+	};
+
 
 	const items: TabsProps['items'] = [
 		{
 			key: '1',
 			label: 'Params',
-			children: <Editable data={jsonData?.queries} />,
+			children: <Editable data={jsonData?.queries} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />,
 		},
 		{
 			key: '2',
 			label: 'Headers',
-			children: <Editable data={jsonData?.headers}/>,
+			children: <Editable data={jsonData?.headers} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />,
 		},
 		{
 			key: '3',
@@ -92,15 +122,15 @@ const App: React.FC = () => {
 	};
 
 	const handleCurl = (e: React.ChangeEvent<HTMLInputElement>) => {
-		try{
+		try {
 			const { value } = e.target;
-			if(value.startsWith('curl')){
+			if (value.startsWith('curl')) {
 				const data = JSON.parse(curlconverter.toJsonString(value));
 				setJsonData(data);
 				setBodyType(0);
 				form.setFieldValue('method', data.method);
 				form.setFieldValue('curl', data.raw_url);
-			}else{
+			} else {
 				setJsonData({
 					url: value,
 					method: form.getFieldValue('method'),
@@ -110,28 +140,28 @@ const App: React.FC = () => {
 					response: {},
 				});
 			}
-		}catch(err){
+		} catch (err) {
 			console.log(err);
 		}
 	};
 
-	const onChangeSwaggerType = ({target: { value } }: RadioChangeEvent) => {
+	const onChangeSwaggerType = ({ target: { value } }: RadioChangeEvent) => {
 		setSwaggerType(value);
 	}
 	//get response
 	const onGenerateHandler = async () => {
-		const body:any = {
+		const body: any = {
 			method: jsonData.method,
 			headers: jsonData.headers,
 		}
-		
-		if(jsonData.method !== 'get'){
+
+		if (jsonData.method !== 'get') {
 			body['body'] = jsonData.data;
 		}
 
 		const response = await fetch(jsonData.url, body);
 		const data = await response.json();
-		setJsonData({...jsonData, response: data});
+		setJsonData({ ...jsonData, response: data });
 	}
 
 	const selectBefore = (
@@ -182,7 +212,7 @@ const App: React.FC = () => {
 							<Form.Item>
 								<Space.Compact style={{ width: '100%' }} size='large'>
 									<Form.Item name="curl" noStyle>
-										<Input addonBefore={selectBefore} placeholder='Paste cURL' onChange={handleCurl} autoComplete='off'/>
+										<Input addonBefore={selectBefore} placeholder='Paste cURL' onChange={handleCurl} autoComplete='off' />
 									</Form.Item>
 									<Button type="primary" htmlType='submit'>Generate</Button>
 								</Space.Compact>
