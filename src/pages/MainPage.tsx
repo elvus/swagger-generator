@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import * as curlconverter from 'curlconverter';
 import Editable from '../components/Editable';
 import Preview from '../components/Preview';
+import swaggergen from '../assets/swaggergen.svg';
 
 const { Option } = Select;
 const { Header, Content } = Layout;
@@ -14,8 +15,10 @@ const App: React.FC = () => {
 	const [swaggerType, setSwaggerType] = useState('3.0');
 	const [bodyType, setBodyType] = useState(0);
 	const [jsonData, setJsonData] = useState<any>();
-	const [dataSource, setDataSource] = useState<any[]>([]);
-	const [selectedRows, setSelectedRows] = useState<React.Key[]>([]);
+	const [querysDataSource, setQuerysDataSource] = useState<any[]>([]);
+	const [headersDataSource, setHeadersDataSource] = useState<any[]>([]);
+	const [querysSelectedRows, setQuerysSelectedRows] = useState<React.Key[]>([]);
+	const [headersSelectedRows, setHeadersSelectedRows] = useState<React.Key[]>([]);
 
 	const BodyType: React.FC<any> = ({ data }) => {
 		const onChange = ({ target: { value } }: RadioChangeEvent) => {
@@ -71,22 +74,49 @@ const App: React.FC = () => {
 	}
 
 	useEffect(() => {
-		setSelectedRows(dataSource.filter((item) => item.selected).map((item) => item.key));
-	},[dataSource]);
+		setQuerysSelectedRows(querysDataSource.filter((item) => item.selected).map((item) => item.key));
+	},[querysDataSource]);
+
+	useEffect(() => {
+		setHeadersSelectedRows(headersDataSource.filter((item) => item.selected).map((item) => item.key));
+	},[headersDataSource]);
 	
-	const rowSelection = {
+	const querysRowSelection = {
 		onSelect: (record: any) => {
-			dataSource.find((item) => item.key === record.key).selected = !record.selected;
-			setDataSource([...dataSource]);
+			querysDataSource.find((item) => item.key === record.key).selected = !record.selected;
+			setQuerysDataSource([...querysDataSource]);
 		},
 		onSelectAll:(selected: boolean, _selectedRows: any[], changeRows: any[]) => {
 			console.log(changeRows)
 			changeRows.forEach((item) => {
-				dataSource.find((data) => data.key === item.key).selected = selected;
+				querysDataSource.find((data) => data.key === item.key).selected = selected;
 			});
-			setDataSource([...dataSource]);
+			setQuerysDataSource([...querysDataSource]);
 		},
-		selectedRowKeys: selectedRows,
+		selectedRowKeys: querysSelectedRows,
+		getCheckboxProps: (record: any) => {
+			if (record.key_param === '') {
+				return {
+					disabled: record.key_param === '', // Column configuration not to be checked
+					name: record.key_param,
+				}
+			}
+		}
+	};
+
+	const headersRowSelection = {
+		onSelect: (record: any) => {
+			headersDataSource.find((item) => item.key === record.key).selected = !record.selected;
+			setHeadersDataSource([...headersDataSource]);
+		},
+		onSelectAll:(selected: boolean, _selectedRows: any[], changeRows: any[]) => {
+			console.log(changeRows)
+			changeRows.forEach((item) => {
+				headersDataSource.find((data) => data.key === item.key).selected = selected;
+			});
+			setHeadersDataSource([...headersDataSource]);
+		},
+		selectedRowKeys: headersSelectedRows,
 		getCheckboxProps: (record: any) => {
 			if (record.key_param === '') {
 				return {
@@ -102,12 +132,12 @@ const App: React.FC = () => {
 		{
 			key: '1',
 			label: 'Params',
-			children: <Editable data={jsonData?.queries} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />,
+			children: <Editable data={jsonData?.queries} rowSelection={querysRowSelection} dataSource={querysDataSource} setDataSource={setQuerysDataSource} />,
 		},
 		{
 			key: '2',
 			label: 'Headers',
-			children: <Editable data={jsonData?.headers} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />,
+			children: <Editable data={jsonData?.headers} rowSelection={headersRowSelection} dataSource={headersDataSource} setDataSource={setHeadersDataSource} />,
 		},
 		{
 			key: '3',
@@ -126,11 +156,12 @@ const App: React.FC = () => {
 			const { value } = e.target;
 			if (value.startsWith('curl')) {
 				const data = JSON.parse(curlconverter.toJsonString(value));
+				console.log(data);
 				setJsonData(data);
 				setBodyType(0);
 				form.setFieldValue('method', data.method);
 				form.setFieldValue('curl', data.raw_url);
-			} else {
+			} /* else {
 				setJsonData({
 					url: value,
 					method: form.getFieldValue('method'),
@@ -139,7 +170,7 @@ const App: React.FC = () => {
 					data: "",
 					response: {},
 				});
-			}
+			} */
 		} catch (err) {
 			console.log(err);
 		}
@@ -188,7 +219,7 @@ const App: React.FC = () => {
 			}}>
 				<Link to="/" style={{ color: 'white', marginRight: '30px' }}>
 					<img
-						src="https://gw.alipayobjects.com/zos/antfincdn/FLrTNDvlna/antv.png"
+						src={swaggergen}
 						alt="logo"
 						style={{ width: 'auto', height: 45, display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
 					/>
