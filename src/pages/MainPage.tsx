@@ -9,6 +9,63 @@ import swaggergen from '../assets/swaggergen.svg';
 
 const { Option } = Select;
 const { Header, Content } = Layout;
+const formHeaders = ['application/x-www-form-urlencoded', 'multipart/form-data'];
+
+const BodyForm: React.FC<any> = ({ bodyType, data, rowSelection, dataSource, setDataSource }) => {
+	switch (bodyType) {
+		case 1:
+			if (data) {
+				if (formHeaders.includes(data.headers['Content-Type'])) {
+					return <Editable data={data?.data} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />
+				}
+			}
+			return <Editable rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />
+
+		case 2:
+			if (data) {
+				if (data.headers['Content-Type'] === 'application/json') {
+					return (
+						<Form.Item>
+							<Input.TextArea rows={10} value={JSON.stringify(data.data, null, 4)} />
+						</Form.Item>
+					);
+				}
+			}
+			return (
+				<Form.Item>
+					<Input.TextArea rows={10} />
+				</Form.Item>
+			);
+		default:
+			return null;
+	}
+}
+
+const BodyType: React.FC<any> = ({ bodyType, setBodyType, data, rowSelection, dataSource, setDataSource }) => {
+	const onChange = ({ target: { value } }: RadioChangeEvent) => {
+		setBodyType(parseInt(value));
+	}
+
+	return (
+		<>
+			<Row>
+				<Col span={24}>
+					<Radio.Group name="type" value={bodyType} onChange={onChange}>
+						<Radio value={0}>none</Radio>
+						<Radio value={1}>form-data</Radio>
+						<Radio value={2}>JSON</Radio>
+					</Radio.Group>
+				</Col>
+			</Row>
+			<Row style={{ marginTop: 10 }}>
+				<Col span={24}>
+					<BodyForm bodyType={bodyType} data={data} rowSelection={rowSelection} dataSource={dataSource} setDataSource={setDataSource} />
+				</Col>
+			</Row>
+		</>
+	);
+}
+
 
 const App: React.FC = () => {
 	const [form] = Form.useForm();
@@ -17,76 +74,29 @@ const App: React.FC = () => {
 	const [jsonData, setJsonData] = useState<any>();
 	const [querysDataSource, setQuerysDataSource] = useState<any[]>([]);
 	const [headersDataSource, setHeadersDataSource] = useState<any[]>([]);
+	const [bodyDataSource, setBodyDataSource] = useState<any[]>([]);
+	const [bodySelectedRows, setBodySelectedRows] = useState<React.Key[]>([]);
 	const [querysSelectedRows, setQuerysSelectedRows] = useState<React.Key[]>([]);
 	const [headersSelectedRows, setHeadersSelectedRows] = useState<React.Key[]>([]);
 
-	const BodyType: React.FC<any> = ({ data }) => {
-		const onChange = ({ target: { value } }: RadioChangeEvent) => {
-			setBodyType(parseInt(value));
-		}
-
-		const BodyForm = () => {
-			const formHeaders = ['application/x-www-form-urlencoded', 'multipart/form-data'];
-			switch (bodyType) {
-				case 1:
-					if (formHeaders.includes(data.headers['Content-Type'])) {
-						return <Editable data={data?.data} />
-					} else {
-						return <Editable />
-					}
-				case 2:
-					if (data.headers['Content-Type'] === 'application/json') {
-						return (
-							<Form.Item>
-								<Input.TextArea rows={10} value={JSON.stringify(data.data, null, 4)} />
-							</Form.Item>
-						);
-					} else {
-						return (
-							<Form.Item>
-								<Input.TextArea rows={10} />
-							</Form.Item>
-						);
-					}
-				default:
-					return null;
-			}
-		}
-
-		return (
-			<>
-				<Row>
-					<Col span={24}>
-						<Radio.Group value={bodyType} onChange={onChange}>
-							<Radio value={0}>none</Radio>
-							<Radio value={1}>form-data</Radio>
-							<Radio value={2}>JSON</Radio>
-						</Radio.Group>
-					</Col>
-				</Row>
-				<Row style={{ marginTop: 10 }}>
-					<Col span={24}>
-						<BodyForm />
-					</Col>
-				</Row>
-			</>
-		);
-	}
-
 	useEffect(() => {
 		setQuerysSelectedRows(querysDataSource.filter((item) => item.selected).map((item) => item.key));
-	},[querysDataSource]);
+	}, [querysDataSource]);
 
 	useEffect(() => {
 		setHeadersSelectedRows(headersDataSource.filter((item) => item.selected).map((item) => item.key));
-	},[headersDataSource]);
-	
+	}, [headersDataSource]);
+
+	useEffect(() => {
+		setBodySelectedRows(bodyDataSource.filter((item) => item.selected).map((item) => item.key));
+	}, [bodyDataSource]);
+
 	const querysRowSelection = {
 		onSelect: (record: any) => {
 			querysDataSource.find((item) => item.key === record.key).selected = !record.selected;
 			setQuerysDataSource([...querysDataSource]);
 		},
-		onSelectAll:(selected: boolean, _selectedRows: any[], changeRows: any[]) => {
+		onSelectAll: (selected: boolean, _selectedRows: any[], changeRows: any[]) => {
 			console.log(changeRows)
 			changeRows.forEach((item) => {
 				querysDataSource.find((data) => data.key === item.key).selected = selected;
@@ -104,12 +114,35 @@ const App: React.FC = () => {
 		}
 	};
 
+	const bodyRowSelection = {
+		onSelect: (record: any) => {
+			bodyDataSource.find((item) => item.key === record.key).selected = !record.selected;
+			setBodyDataSource([...bodyDataSource]);
+		},
+		onSelectAll: (selected: boolean, _selectedRows: any[], changeRows: any[]) => {
+			console.log(changeRows)
+			changeRows.forEach((item) => {
+				bodyDataSource.find((data) => data.key === item.key).selected = selected;
+			});
+			setBodyDataSource([...bodyDataSource]);
+		},
+		selectedRowKeys: bodySelectedRows,
+		getCheckboxProps: (record: any) => {
+			if (record.key_param === '') {
+				return {
+					disabled: record.key_param === '', // Column configuration not to be checked
+					name: record.key_param,
+				}
+			}
+		}
+	};
+
 	const headersRowSelection = {
 		onSelect: (record: any) => {
 			headersDataSource.find((item) => item.key === record.key).selected = !record.selected;
 			setHeadersDataSource([...headersDataSource]);
 		},
-		onSelectAll:(selected: boolean, _selectedRows: any[], changeRows: any[]) => {
+		onSelectAll: (selected: boolean, _selectedRows: any[], changeRows: any[]) => {
 			console.log(changeRows)
 			changeRows.forEach((item) => {
 				headersDataSource.find((data) => data.key === item.key).selected = selected;
@@ -127,7 +160,6 @@ const App: React.FC = () => {
 		}
 	};
 
-
 	const items: TabsProps['items'] = [
 		{
 			key: '1',
@@ -143,7 +175,7 @@ const App: React.FC = () => {
 			key: '3',
 			label: 'Body',
 			// children: <Editable data={body} />,
-			children: <BodyType data={jsonData} />,
+			children: <BodyType bodyType={bodyType} setBodyType={setBodyType} data={jsonData} rowSelection={bodyRowSelection} dataSource={bodyDataSource} setDataSource={setBodyDataSource} />,
 		},
 	];
 
@@ -156,21 +188,17 @@ const App: React.FC = () => {
 			const { value } = e.target;
 			if (value.startsWith('curl')) {
 				const data = JSON.parse(curlconverter.toJsonString(value));
-				console.log(data);
 				setJsonData(data);
-				setBodyType(0);
+				if (formHeaders.includes(data.headers['Content-Type'])) {
+					setBodyType(1);
+				}else if (data.headers['Content-Type'] === 'application/json') {
+					setBodyType(2);
+				}else {
+					setBodyType(0);
+				}
 				form.setFieldValue('method', data.method);
 				form.setFieldValue('curl', data.raw_url);
-			} /* else {
-				setJsonData({
-					url: value,
-					method: form.getFieldValue('method'),
-					headers: {},
-					queries: {},
-					data: "",
-					response: {},
-				});
-			} */
+			}
 		} catch (err) {
 			console.log(err);
 		}
