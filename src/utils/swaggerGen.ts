@@ -150,32 +150,34 @@ class JSONToSwaggerConverter {
             swaggerSchema += `  ${this.url.pathname}:\n`;
             swaggerSchema += `    ${this.json?.method}:\n`;
             swaggerSchema += `      description: ""\n`;
-            if (JSON.stringify(this.json?.headers) !== `{}` && this.json?.headers !== undefined) {
+            if((JSON.stringify(this.json?.headers) !== `{}` && this.json?.headers !== undefined) || (JSON.stringify(this.json?.queries) !== `{}` && this.json?.queries !== undefined)){
                 swaggerSchema += `      parameters:\n`;
-                for (let key in this.json?.headers) {
-                    swaggerSchema += `        - name: "${key}"\n`;
-                    swaggerSchema += `          in: "header"\n`;
-                    if (this.swagger === `3.0`) {
-                        swaggerSchema += `          schema:\n`;
-                        swaggerSchema += `            type: "string"\n`;
-                    } else {
-                        swaggerSchema += `          type: "string"\n`;
+                if (JSON.stringify(this.json?.headers) !== `{}` && this.json?.headers !== undefined) {
+                    for (let key in this.json?.headers) {
+                        swaggerSchema += `        - name: "${key}"\n`;
+                        swaggerSchema += `          in: "header"\n`;
+                        if (this.swagger === `3.0`) {
+                            swaggerSchema += `          schema:\n`;
+                            swaggerSchema += `            type: "string"\n`;
+                        } else {
+                            swaggerSchema += `          type: "string"\n`;
+                        }
+                    }
+                }
+                if (JSON.stringify(this.json?.queries) !== `{}` && this.json?.queries !== undefined) {
+                    for (let key in this.json?.queries) {
+                        swaggerSchema += `        - name: "${key}"\n`;
+                        swaggerSchema += `          in: "query"\n`;
+                        if (this.swagger === `3.0`) {
+                            swaggerSchema += `          schema:\n`;
+                            swaggerSchema += `            type: "string"\n`;
+                        } else {
+                            swaggerSchema += `          type: "string"\n`;
+                        }
                     }
                 }
             }
-            if (JSON.stringify(this.json?.query) !== `{}` && this.json?.query !== undefined) {
-                for (let key in this.json?.query) {
-                    swaggerSchema += `        - name: "${key}"\n`;
-                    swaggerSchema += `          in: "query"\n`;
-                    if (this.swagger === `3.0`) {
-                        swaggerSchema += `          schema:\n`;
-                        swaggerSchema += `            type: "string"\n`;
-                    } else {
-                        swaggerSchema += `          type: "string"\n`;
-                    }
-                }
-            }
-
+            
             if (JSON.stringify(this.json?.data) !== `{}` && this.json?.data !== undefined) {
                 if (this.swagger === `3.0`) {
                     swaggerSchema += `      requestBody:\n`;

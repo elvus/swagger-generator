@@ -18,7 +18,7 @@ const Preview: React.FC<PreviewProps> = ({ swaggerType, json }) => {
     }, [swaggerSchema]);
     return(
         <>
-         <SyntaxHighlighter language="yaml" style={atomOneDark}>{ value } </SyntaxHighlighter>
+            <SyntaxHighlighter language="yaml" style={atomOneDark}>{ value } </SyntaxHighlighter>
         </>);
 }
 

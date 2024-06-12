@@ -183,21 +183,41 @@ const App: React.FC = () => {
 		console.log(key);
 	};
 
+	const checkIfValidUrl = (url: string) => {
+		try {
+			return new URL(url);;
+		} catch (e) {
+			return "https://host";
+		}
+	}
+
 	const handleCurl = (e: React.ChangeEvent<HTMLInputElement>) => {
 		try {
 			const { value } = e.target;
 			if (value.startsWith('curl')) {
 				const data = JSON.parse(curlconverter.toJsonString(value));
 				setJsonData(data);
-				if (formHeaders.includes(data.headers['Content-Type'])) {
-					setBodyType(1);
-				}else if (data.headers['Content-Type'] === 'application/json') {
-					setBodyType(2);
-				}else {
-					setBodyType(0);
+				if(data.headers){
+					if (formHeaders.includes(data.headers['Content-Type'])) {
+						setBodyType(1);
+					}else if (data.headers['Content-Type'] === 'application/json') {
+						setBodyType(2);
+					}else {
+						setBodyType(0);
+					}
 				}
 				form.setFieldValue('method', data.method);
 				form.setFieldValue('curl', data.raw_url);
+				console.log(data);
+			}else{
+				setJsonData({
+					"url": checkIfValidUrl(form.getFieldValue('curl')),
+					"raw_url": "https://qa.api.tigo.com/v1/tigo/convergent/sv/billing/invoice/pdf",
+					"method": "post",
+					"headers": {},
+					"data": {},
+					"queries": {}
+				});
 			}
 		} catch (err) {
 			console.log(err);
@@ -209,16 +229,16 @@ const App: React.FC = () => {
 	}
 	//get response
 	const onGenerateHandler = async () => {
-		const body: any = {
+		const requestOptions: any = {
 			method: jsonData.method,
-			headers: jsonData.headers,
+			headers: jsonData.headers
 		}
 
 		if (jsonData.method !== 'get') {
-			body['body'] = jsonData.data;
+			requestOptions['body'] = jsonData.data;
 		}
-
-		const response = await fetch(jsonData.url, body);
+		console.log(jsonData.url, requestOptions);
+		const response = await fetch(jsonData.url, requestOptions);
 		const data = await response.json();
 		setJsonData({ ...jsonData, response: data });
 	}
